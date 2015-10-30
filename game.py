@@ -101,7 +101,7 @@ class Trash:
         return
     
     def check(self,card):
-    # check if a card is in trash
+    # return number of a certain type of card is in trash
         return self.state[card]
     
     def deepCopy(self):
@@ -145,7 +145,7 @@ class GameStateData:
         for state in agentState:
             copied.append(state.copy())
         return copied
-        
+         
 class Rule:
     def __init__(self,numColor,numNumber,numCard,numClue,numAgent):
         self.numColor=numColor
