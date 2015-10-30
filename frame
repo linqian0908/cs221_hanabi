@@ -1,0 +1,70 @@
+game.py
+Game.init()
+Game.run()
+
+    class AgentState //AgentStates hold the state of an agent
+      cards=[(number,color)] // list, use pop() and remove() and append() to update
+      know=[(false,false)]
+    class Deck //cards in the undrawn deck
+      Counter deck{(color,number):#}
+      int numCurrent
+    class Table //cards played
+      int table[numColor]
+    class Trash //cards discarded
+      Counter trash{(color,number):#}
+      
+    class GameStataData
+      [member]     
+        int addition_terms='inf'
+        agentStates[n_ag]
+        deck
+        table
+        trash
+    
+    class GameState
+      __init__(self,gameStateData)
+      self.data=gameStateData
+      [public function]
+      gameState.getLegalActions(agentIndex):
+        Returns a list of legal actions for an agent
+        agentIndex=0 means Pacman, ghosts are >= 1
+        [action (('play',#),('discard':#),('info':play,color/number)]
+        
+      gameState.generateSuccessor(agentIndex, action):
+        Returns the successor game state after an agent takes an action
+        update gameData
+          
+      gameState.getNumAgents():
+        Returns the total number of agents in the game
+        
+      gameState.getScore():
+        Returns the score corresponding to the current state of the game
+        table to score function
+        
+      gameState.isWin():
+        Returns True if it's a winning state
+        addition_terms<=0 & table[...]=max_number
+        
+      gameState.isLose():
+        Returns True if it's a losing state
+        addition_terms<=0 & table[i]<max_number
+        
+      [private function]
+        query_AgentStates
+        query_Table
+    
+    class Game
+      [function]
+        int numColor
+        numNumber[] 
+        int numClue(>=0)
+        int numAgent
+        __init__(int num_color,int max_number,num_number[],int clue(>=0),int num_agent)
+        
+        run(agent)
+        
+agent.py
+    class Agent
+        [function]
+        get_action
+        
