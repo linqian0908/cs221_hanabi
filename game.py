@@ -76,9 +76,7 @@ class Table:
     def check(self,card):
     # check if a card is already played. return: True if is played
         color,number=card
-        if self.state[color]>=number:
-            return True
-        return False
+        return self.state[color]>=number
     
     def getScore(self):
         return sum(self.state)+len(self.state)

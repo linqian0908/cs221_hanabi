@@ -102,5 +102,7 @@ class GameState:
         return GameState(self.rule,self.data.deepCopy())
     
     def isDangerous(self,card):
+        if self.data.table.check(card):
+            return False
         color,number=card
         return self.data.trash.check(card)>=self.rule.numNumber[number]
