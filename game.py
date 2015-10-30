@@ -186,7 +186,7 @@ class Game:
                 print "-----------the current card statistics is-------------------"
                 print "Table: ", observation.data.table.state
                 print "Number of clue: ", observation.data.clue
-                print "Number of clue: "
+                print "Number of additional rounds: ", observation.data.additionalTerms
                 for i in range(len(self.agentList)):
                     print "Player ", i, " has cards: ", observation.data.agentState[i].cards
             agent=self.agentList[agentIndex]
