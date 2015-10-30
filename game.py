@@ -188,11 +188,11 @@ class Game:
                 print "Number of clue: ", observation.data.clue
                 print "Number of additional rounds: ", observation.data.additionalTerms
                 for i in range(len(self.agentList)):
-                    print "Player ", i, " has cards: ", observation.data.agentState[i].cards
+                    print "Player ", i, " has cards: ", observation.data.agentState[i].cards, observation.data.agentState[i].know
             agent=self.agentList[agentIndex]
             action = agent.getAction(observation)
             if verbose:
-                print "#### Now the plyaer ", agent.index, " takes action: ", action
+                print "#### Now the player ", agent.index, " takes action: ", action
             self.moveHistory.append((agentIndex,action))
             # Execute the action
             self.state=self.state.generateSuccessor(agentIndex,action)

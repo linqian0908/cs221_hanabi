@@ -75,7 +75,7 @@ class GameState:
                 knownCardsIndex=colors[action[2]]
                 for i in knownCardsIndex:
                     AgentReceivInfo.know[i]=('True',AgentReceivInfo.know[i][1])
-            if action[1]=='number':
+            if action[0]=='number':
                 knownCardsIndex=numbers[action[2]]
                 for i in knownCardsIndex:
                     AgentReceivInfo.know[i]=(AgentReceivInfo.know[i][0],'True')
