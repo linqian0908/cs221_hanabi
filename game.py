@@ -182,8 +182,17 @@ class Game:
             # Generate an observation of the state
             observation=self.state.deepCopy()
             # Solicit an action
+            if verbose:
+                print "-----------the current card statistics is-------------------"
+                print "Table: ", observation.data.table.state
+                print "Number of clue: ", observation.data.clue
+                print "Number of clue: "
+                for i in range(len(self.agentList)):
+                    print "Player ", i, " has cards: ", observation.data.agentState[i].cards
             agent=self.agentList[agentIndex]
             action = agent.getAction(observation)
+            if verbose:
+                print "#### Now the plyaer ", agent.index, " takes action: ", action
             self.moveHistory.append((agentIndex,action))
             # Execute the action
             self.state=self.state.generateSuccessor(agentIndex,action)
@@ -199,5 +208,5 @@ class Game:
 agents=[]        
 for i in range(3):
     agents.append(randomAgent(i))
-game=Game(agents,0)
-game.run()
+game=Game(agents)
+game.run(1)
