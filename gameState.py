@@ -45,7 +45,8 @@ class GameState:
             isValid=state.data.table.add(card)
             if not isValid:
                 state.data.trash.add(card)
-                state.data.clue-=1
+                if state.data.clue>0:
+                    state.data.clue-=1
             if state.data.additionalTerms==float('inf'):
                 newcard=state.data.deck.draw()
                 if newcard!=None:
