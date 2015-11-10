@@ -195,13 +195,15 @@ class Game:
                 print "Number of clue: ", observation.data.clue
                 print "Number of additional rounds: ", observation.data.additionalTerms
                 for i in range(len(self.agentList)):
-                    print "Player ", i, " has cards: ", observation.data.agentState[i].cards, observation.data.agentState[i].know
+                    print "Player ", i, " has cards: ", observation.data.agentState[i].cards, observation.data.agentState[i].know,observation.data.agentState[i].infer
             agent=self.agentList[agentIndex]
             action = agent.getAction(observation)
             if verbose:
                 print "#### Now the player ", agent.index, " takes action: ", action
             # Execute the action
             self.state=self.state.generateSuccessor(agentIndex,action)
+            for a in self.agentList:
+                a.infer(self.state,agentIndex,action)
             self.gameOver=self.state.isEnd()
             agentIndex=( agentIndex+1 ) % self.rule.numAgent
         
@@ -213,6 +215,6 @@ class Game:
 
 agents=[]        
 for i in range(3):
-    agents.append(randomAgent(i))
+    agents.append(informationlessAgent(i))
 game=Game(agents)
 game.run(1)
