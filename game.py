@@ -5,17 +5,22 @@ from gameState import *
 from agent import *
 
 class AgentState:
-    def __init__(self,cards,know=None):
+    def __init__(self,cards,know=None,infer=None):
         self.cards=cards
         if know is None:
             self.know=[(False,False)]*len(self.cards)
         else:
             self.know=know
-            
+        if infer is None:
+            self.infer=[None]*len(self.cards)
+        else:
+            self.infer=infer
+        
     def pop(self,i):
     # remove the i-th card from the hand
         if i<len(self.cards):
             self.know.pop(i)
+            self.infer.pop(i)
             return self.cards.pop(i)
         return None
         
@@ -23,11 +28,12 @@ class AgentState:
     # add a card to the last on hand
         self.cards.append(card)
         self.know.append((False,False))
+        self.infer.append(None)
     
     # TODO: add function to update know. add aggregate function for knowledge
     
     def copy(self):
-        return AgentState(copy.deepcopy(self.cards),copy.deepcopy(self.know))
+        return AgentState(copy.deepcopy(self.cards),copy.deepcopy(self.know),copy.deepcopy(self.infer))
         
 class Deck:
     def __init__(self,prev=None):
@@ -73,6 +79,10 @@ class Table:
             return True
         return False
     
+    def playable(self,card):
+        color,number=card
+        return self.state[color]==number-1
+        
     def check(self,card):
     # check if a card is already played. return: True if is played
         color,number=card
@@ -159,7 +169,6 @@ class Game:
         initstate=GameStateData()
         initstate.initialize(self.rule)
         self.state=GameState(self.rule,initstate)
-        self.moveHistory=[]
         self.agentList=[]
         for i in range(len(agents)):
             self.agentList.append(agents[i])
@@ -186,14 +195,15 @@ class Game:
                 print "Number of clue: ", observation.data.clue
                 print "Number of additional rounds: ", observation.data.additionalTerms
                 for i in range(len(self.agentList)):
-                    print "Player ", i, " has cards: ", observation.data.agentState[i].cards, observation.data.agentState[i].know
+                    print "Player ", i, " has cards: ", observation.data.agentState[i].cards, observation.data.agentState[i].know,observation.data.agentState[i].infer
             agent=self.agentList[agentIndex]
             action = agent.getAction(observation)
             if verbose:
                 print "#### Now the player ", agent.index, " takes action: ", action
-            self.moveHistory.append((agentIndex,action))
             # Execute the action
             self.state=self.state.generateSuccessor(agentIndex,action)
+            for a in self.agentList:
+                a.infer(self.state,agentIndex,action)
             self.gameOver=self.state.isEnd()
             agentIndex=( agentIndex+1 ) % self.rule.numAgent
         
@@ -205,6 +215,10 @@ class Game:
 
 agents=[]        
 for i in range(3):
+<<<<<<< HEAD
     agents.append(MaxMaxAgent(i))
+=======
+    agents.append(informationlessAgent(i))
+>>>>>>> aa7b25bf212c7a4c963f7bb406cab53b054b0539
 game=Game(agents)
 game.run(0)

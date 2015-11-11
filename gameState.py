@@ -18,7 +18,6 @@ class GameState:
                 numbers[infoCards[i][1]]=[i]
         return (colors, numbers)
     
-
     def getLegalActions(self,agentIndex):
         # return [('play',#),('discard', #),('color', player#, #) ('number', player#, #)]
         LegalActions=[]
@@ -81,7 +80,7 @@ class GameState:
                 for i in knownCardsIndex:
                     AgentReceivInfo.know[i]=(AgentReceivInfo.know[i][0],'True')
             if state.data.additionalTerms!=float('inf'):
-                state.data.additionalTerms-=1
+                state.data.additionalTerms-=1                
         return state
 
     def getNumAgents(self):
@@ -101,9 +100,10 @@ class GameState:
     
     def deepCopy(self):
         return GameState(self.rule,self.data.deepCopy())
-    
+        
+### helper functions ###    
     def isDangerous(self,card):
         if self.data.table.check(card):
             return False
         color,number=card
-        return self.data.trash.check(card)>=self.rule.numNumber[number]
+        return self.data.trash.check(card)>=(self.rule.numNumber[number]-1)   
