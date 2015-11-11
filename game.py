@@ -205,6 +205,6 @@ class Game:
 
 agents=[]        
 for i in range(3):
-    agents.append(randomAgent(i))
+    agents.append(MaxMaxAgent(i))
 game=Game(agents)
-game.run(1)
+game.run(0)
