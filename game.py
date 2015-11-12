@@ -112,6 +112,7 @@ class Trash:
     # return number of a certain type of card is in trash
         return self.state[card]
     
+    
     def deepCopy(self):
         return Trash(copy.deepcopy(self.state))
         
@@ -216,5 +217,6 @@ class Game:
 agents=[]        
 for i in range(3):
     agents.append(informationlessAgent(i))
+    #agents.append(randomAgent(i))
 game=Game(agents)
 game.run(1)

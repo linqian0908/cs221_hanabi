@@ -19,7 +19,12 @@ class Agent:
 class randomAgent(Agent):
     def getAction(self,gameState):
         actions=gameState.getLegalActions(self.index)
-        return random.sample(actions,1)[0]
+        group=groupActions(actions)
+        if len(group['info'])>0:
+            action_type=random.sample(['play','discard','info'],1)[0]
+        else:
+            action_type=random.sample(['play','discard'],1)[0]
+        return random.sample(group[action_type],1)[0]
     
     def infer(self,gameState,agentIndex,action):
         return
@@ -106,12 +111,14 @@ class panicAgent(Agent):
                 return random.sample([('color',nextIndex,cardcolor),('number',nextIndex,cardnum)],1)[0]
         # infer playable card
         
-    def inter(self,gameState,agentIndex,action):
+    def infer(self,gameState,agentIndex,action):
         return
                                   
 ### helper functions ###
 def groupActions(actions):
-    group={'play':[],'discard':[],'color':[],'number':[]}
+    group={'play':[],'discard':[],'color':[],'number':[],'info':[]}
     for a in actions:
         group[a[0]].append(a)
+        if a=='color' or a=='number':
+            group['info']=[a]
     return group

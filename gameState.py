@@ -106,4 +106,15 @@ class GameState:
         if self.data.table.check(card):
             return False
         color,number=card
-        return self.data.trash.check(card)>=(self.rule.numNumber[number]-1)   
+        return self.data.trash.check(card)==(self.rule.numNumber[number]-1)
+        
+    def getDangerousInColor(self,color):
+        base=self.data.table[color]
+        result=[]
+        for i in range(base+1,len(rule.numNumber)):
+            if self.data.trash.check([color,i])==(self.rule.numNumber[number]-1):
+                result.append(i)
+        return result
+    
+    def getDangerousInNumber(self,number):
+        return
