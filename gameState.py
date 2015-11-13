@@ -100,6 +100,15 @@ class GameState:
     
     def deepCopy(self):
         return GameState(self.rule,self.data.deepCopy())
+    
+    def printData(self):
+        print "-----------the current card statistics is-------------------"
+        print "Table: ", self.data.table.state
+        print "Number of clue: ", self.data.clue
+        print "Number of additional rounds: ", self.data.additionalTerms
+        for i in range(self.getNumAgents()):
+            print "Player ", i, " has cards: ", self.data.agentState[i].cards, self.data.agentState[i].know,self.data.agentState[i].infer
+    
         
 ### helper functions ###    
     def isDangerous(self,card):

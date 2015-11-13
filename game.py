@@ -190,12 +190,7 @@ class Game:
             observation=self.state.deepCopy()
             # Solicit an action
             if verbose:
-                print "-----------the current card statistics is-------------------"
-                print "Table: ", observation.data.table.state
-                print "Number of clue: ", observation.data.clue
-                print "Number of additional rounds: ", observation.data.additionalTerms
-                for i in range(len(self.agentList)):
-                    print "Player ", i, " has cards: ", observation.data.agentState[i].cards, observation.data.agentState[i].know,observation.data.agentState[i].infer
+                observation.printData()
             agent=self.agentList[agentIndex]
             action = agent.getAction(observation)
             if verbose:
@@ -213,12 +208,11 @@ class Game:
             
         self.finish()
 
+
+
 agents=[]        
-for i in range(3):
-<<<<<<< HEAD
+for i in range(2):
     agents.append(MaxMaxAgent(i))
-=======
-    agents.append(informationlessAgent(i))
->>>>>>> aa7b25bf212c7a4c963f7bb406cab53b054b0539
-game=Game(agents)
-game.run(0)
+    #agents.append(informationlessAgent(i))
+game=Game(agents, 1, [2,1],numCard=1,numClue=7)
+game.run(1)

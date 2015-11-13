@@ -109,17 +109,26 @@ class panicAgent(Agent):
 
 class MaxMaxAgent(Agent):
     #similar to minimax, but here is a collaboration game:
+    def __init__(self,index):
+        self.index=index
+        self.depth=1
+    
     def evaluationFunction(self, gameState):
         return gameState.getScore()
+
     def getAction(self, gameState):
         optimalActions=[]
         def recComputeVopt(gameState, depth, agentIndex):
             Actions=gameState.getLegalActions(agentIndex)
+            #print '\n'
+            #print "active agent is ", agentIndex, " with depth ", depth
+            #print "allowed action is ", Actions
+            #gameState.printData()
             if gameState.isEnd() or (not Actions):
                 return gameState.getScore()
             if depth==0:
                 return self.evaluationFunction(gameState)
-            if agentIndex<gameState.getNumAgents()-1:
+            if agentIndex < gameState.getNumAgents()-1:
                 values=[recComputeVopt(gameState.generateSuccessor(agentIndex, a), depth, agentIndex+1) for a in Actions]
             else:
                 values=[recComputeVopt(gameState.generateSuccessor(agentIndex, a), depth-1, 0) for a in Actions]
@@ -128,9 +137,12 @@ class MaxMaxAgent(Agent):
                 for i, v in enumerate(values):
                     if v==optimalValue:
                         optimalActions.append(Actions[i])
-            return optimalValue
-        _=recComputeVopt(gameState, 1, self.index)
+            print optimalActions
+        _=recComputeVopt(gameState, self.depth, self.index)
         return random.choice(optimalActions)
+
+    def infer(self,gameState,agentIndex,action):
+        return
 
                                   
 ### helper functions ###
