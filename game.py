@@ -30,7 +30,6 @@ class AgentState:
         self.know.append((False,False))
         self.infer.append(None)
     
-    # TODO: add function to update know. add aggregate function for knowledge
     def peek(self):
         see=[]
         for i in range(len(self.cards)):

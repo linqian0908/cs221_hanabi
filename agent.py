@@ -129,48 +129,12 @@ class stateAgent(Agent):
             else:
                 knowCardIndex=colors[action[2]]
             first=min(knowCardIndex)
-            if state.infer[first] is None:
-                state.infer[first]='dangerous'
             last=max(knowCardIndex)
-            state.infer[last]='playable'       
-        
-class panicAgent(Agent):
-    # assume agent use the following strategy (known to each other)
-    # if clue>0: check next player's card of no info and is dangerous (from oldest)
-    # infer playable card and play (simple infer, using table, trash and other agent's card)
-    # discard oldest informationless card
-    # random info
-    # random play/discard
-    def tell(self,gameState,agentIndex):
-        state=gameState.data.agentState(agentIndex)
-        cards=state.cards
-        know=state.know
-        for i in range(len(cards)):
-            if not know[i][0]|know[i][1]:
-                if gameState.isDangerous(cards[i]):
-                    return i
-        return -1
-    
-    def getAction(self,gameState):
-        actions=gameState.getLegalAction(self.index)
-        group=groupActions(actions)
-        nextIndex=(self.index+1) % gameState.rule.numAgent
-        # tell dangerous card
-        if gameState.data.clue>0:
-            cardIndex=tell(gameState,nextIndex)
-            if cardIndex>-1:
-                for actcolor,agent,cardcolor in group['color']:
-                    if agent==nextIndex and cardIndex in cardcolor:
-                        break
-                for actnum,agent,cardnum in group['number']:
-                    if agent==nextIndex and cardIndex in cardnum:
-                        break
-                if sum(cardcolor)<sum(cardnum):
-                    return ('color',nextIndex,cardcolor)
-                if sum(cardnum)<sum(cardcolor):
-                    return ('number',nextIndex,cardnum)
-                return random.sample([('color',nextIndex,cardcolor),('number',nextIndex,cardnum)],1)[0]
-        # infer playable card
+            if last==first:
+                if state.infer[first] is None:
+                    state.infer[first]='playable'
+                else:
+                    state.infer[first]='dangerous'     
                 
 ### helper functions ###
 def groupActions(actions):
