@@ -134,8 +134,83 @@ class stateAgent(Agent):
                 if state.infer[first] is None:
                     state.infer[first]='playable'
                 else:
-                    state.infer[first]='dangerous'     
+                    state.infer[first]='dangerous' 
+
+class oracleAgent(Agent):
+    def getAction(self,gameState):
+        state=gameState.data.agentState[self.index]
+        # play/discard
+        for i in reversed(range(len(state.cards))):
+            if state.infer[i] is 'playable':
+                return ('play',i)
                 
+        # tell next player
+        if gameState.data.clue>0:
+            nextIndex=(self.index+1)%gameState.rule.numAgent
+            nextState=gameState.data.agentState[nextIndex]
+            return ('number',nextIndex,nextState.cards[0][1])
+                       
+        for i in range(len(state.cards)):
+            if state.infer[i] is 'discardable':
+                return ('discard',i)
+        for i in range(len(state.cards)):
+            if state.infer[i] is not 'dangerous':
+                return ('discard',i)
+                
+        # random discard
+        return ('discard',random.sample(range(len(state.cards)),1)[0])                
+    
+    def infer(self,gameState,agentIndex,action):
+        if not (agentIndex+1)%gameState.rule.numAgent == self.index:
+            return
+        state=gameState.data.agentState[self.index]
+        see=state.cards
+        for i in range(len(state.cards)):
+            if state.infer[i] is None or state.infer[i] is 'dangerous':
+                if gameState.isDangerous(see[i]):
+                    state.infer[i]='dangerous'
+                if gameState.isPlayable(see[i]):
+                    state.infer[i]='playable'
+                elif gameState.isDiscardable(see[i]):
+                    state.infer[i]='discardable'
+                    
+class MaxMaxAgent(Agent):
+    #similar to minimax, but here is a collaboration game:
+    def __init__(self,index):
+        self.index=index
+        self.depth=1
+    
+    def evaluationFunction(self, gameState):
+        return gameState.getScore()
+
+    def getAction(self, gameState):
+        optimalActions=[]
+        def recComputeVopt(gameState, depth, agentIndex):
+            Actions=gameState.getLegalActions(agentIndex)
+            #print '\n'
+            #print "active agent is ", agentIndex, " with depth ", depth
+            #print "allowed action is ", Actions
+            #gameState.printData()
+            if gameState.isEnd() or (not Actions):
+                return gameState.getScore()
+            if depth==0:
+                return self.evaluationFunction(gameState)
+            if agentIndex < gameState.getNumAgents()-1:
+                values=[recComputeVopt(gameState.generateSuccessor(agentIndex, a), depth, agentIndex+1) for a in Actions]
+            else:
+                values=[recComputeVopt(gameState.generateSuccessor(agentIndex, a), depth-1, 0) for a in Actions]
+            optimalValue=max(values)
+            if agentIndex==self.index and depth==self.depth:
+                for i, v in enumerate(values):
+                    if v==optimalValue:
+                        optimalActions.append(Actions[i])
+            print optimalActions
+        _=recComputeVopt(gameState, self.depth, self.index)
+        return random.choice(optimalActions)
+
+    def infer(self,gameState,agentIndex,action):
+        return
+
 ### helper functions ###
 def groupActions(actions):
     group={'play':[],'discard':[],'color':[],'number':[],'info':[]}

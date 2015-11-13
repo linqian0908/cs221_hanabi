@@ -194,12 +194,14 @@ class Game:
             self.agentList.append(agents[i])
             agents[i].registerInitialState(self.state)
     
-    def finish(self):
-        if self.state.isWin():
-            print "Win!"
-        else:
-            print "Lose~"
-        print "finish with score ",self.state.getScore()
+    def finish(self,verbose=0):
+        if verbose:
+            if self.state.isWin():
+                print "Win!"
+            else:
+                print "Lose~"
+            print "finish with score ",self.state.getScore()
+        return self.state.getScore()
         # TODO: print out table and trash
         
     def run(self, verbose=0):
@@ -211,12 +213,7 @@ class Game:
             observation=self.state.deepCopy()
             # Solicit an action
             if verbose:
-                print "-----------the current card statistics is-------------------"
-                print "Table: ", observation.data.table.state
-                print "Number of clue: ", observation.data.clue
-                print "Number of additional rounds: ", observation.data.additionalTerms
-                for i in range(len(self.agentList)):
-                    print "Player ", i, " has cards: ", observation.data.agentState[i].cards, observation.data.agentState[i].know,observation.data.agentState[i].infer
+                observation.printData()
             agent=self.agentList[agentIndex]
             action = agent.getAction(observation)
             if verbose:
@@ -232,12 +229,4 @@ class Game:
         #if "final" in dir(self.agent):
         #   agent.final(self.state)
             
-        self.finish()
-
-agents=[]        
-for i in range(3):
-    agents.append(stateAgent(i))
-    #agents.append(informationlessAgent(i))
-    #agents.append(randomAgent(i))
-game=Game(agents)
-game.run(1)
+        return self.finish(verbose)
