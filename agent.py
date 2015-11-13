@@ -1,28 +1,33 @@
 import random
 
 class Agent:
-  """
-  An agent must define a getAction method, but may also define the
-  following methods which will be called if they exist:
-
-  def registerInitialState(self, state): # inspects the starting state
-  """
-  def __init__(self,index):
-    self.index=index
-    
-  def getAction(self, state):
     """
-    The Agent will receive a GameState and must return an action
+    An agent must define a getAction method, but may also define the
+    following methods which will be called if they exist:
     """
-    raiseNotDefined()
+    def __init__(self,index):
+        self.index=index
     
+    def getAction(self, state):
+        raiseNotDefined()
+        
+    def registerInitialState(self, gameState): 
+    # inspects the starting state
+        return
+        
+    def infer(self,gameState,agentIndex,action):
+    # infer other players' action. Not necessarily implimented in every subclass
+        return
+         
 class randomAgent(Agent):
     def getAction(self,gameState):
         actions=gameState.getLegalActions(self.index)
-        return random.sample(actions,1)[0]
-    
-    def infer(self,gameState,agentIndex,action):
-        return
+        group=groupActions(actions)
+        if len(group['info'])>0:
+            action_type=random.sample(['play','discard','info'],1)[0]
+        else:
+            action_type=random.sample(['play','discard'],1)[0]
+        return random.sample(group[action_type],1)[0]
 
 # only works for numCard=4;
 # TODO: generalize to arbitrary numCard (overide parent class init function?)
@@ -66,8 +71,69 @@ class informationlessAgent(Agent):
                 gameState.data.agentState[self.index].infer[1]=True
             if lc>3 and diff==3:
                 gameState.data.agentState[self.index].infer[3]=True
+        return
+
+class stateAgent(Agent):
+    def getAction(self,gameState):
+        state=gameState.data.agentState[self.index]
+        # play/discard
+        for i in reversed(range(len(state.cards))):
+            if state.infer[i] is 'playable':
+                return ('play',i)
+        for i in range(len(state.cards)):
+            if state.infer[i] is 'discardable':
+                return ('discard',i)
+        
+        # tell next player
+        if gameState.data.clue>0:
+            nextIndex=(self.index+1)%gameState.rule.numAgent
+            nextState=gameState.data.agentState[nextIndex]
+            for i in reversed(range(len(nextState.cards))):
+                if gameState.isPlayable(nextState.cards[i]):
+                    if not nextState.know[i][1]:
+                        return ('number',nextIndex,nextState.cards[i][1])
+                    if not nextState.know[i][0]:
+                        return ('color',nextIndex,nextState.cards[i][0])
+            for i in range(len(nextState.cards)):
+                if gameState.isDangerous(nextState.cards[i]):
+                    if not nextState.know[i][1]:
+                        return ('number',nextIndex,nextState.cards[i][1])
+                    if not nextState.know[i][0]:
+                        return ('color',nextIndex,nextState.cards[i][0])
+        
+        # random discard
+        for i in range(len(state.cards)):
+            if not (state.know[i][0] or state.know[i][1]):
+                return ('discard',i)
+        for i in range(len(state.cards)):
+            if state.infer[i] is not 'dangerous':
+                return ('discard',i)
+        return ('discard',random.sample(range(len(state.cards)),1)[0])                
+    
+    def infer(self,gameState,agentIndex,action):
+        if not (agentIndex+1)%gameState.rule.numAgent == self.index:
             return
-            
+        state=gameState.data.agentState[self.index]
+        see=state.peek()
+        for i in range(len(state.cards)):
+            if state.infer[i] is None and gameState.isDangerous(see[i]):
+                state.infer[i]='dangerous'
+            if gameState.isPlayable(see[i]):
+                state.infer[i]='playable'
+            elif gameState.isDiscardable(see[i]):
+                state.infer[i]='discardable'
+        if (action[0]=='color' or action[0]=='number') and action[1]==self.index:            
+            colors, numbers=gameState.getCardStatistics(self.index)
+            if action[0]=='number':
+                knowCardIndex=numbers[action[2]]
+            else:
+                knowCardIndex=colors[action[2]]
+            first=min(knowCardIndex)
+            if state.infer[first] is None:
+                state.infer[first]='dangerous'
+            last=max(knowCardIndex)
+            state.infer[last]='playable'       
+        
 class panicAgent(Agent):
     # assume agent use the following strategy (known to each other)
     # if clue>0: check next player's card of no info and is dangerous (from oldest)
@@ -144,10 +210,11 @@ class MaxMaxAgent(Agent):
     def infer(self,gameState,agentIndex,action):
         return
 
-                                  
 ### helper functions ###
 def groupActions(actions):
-    group={'play':[],'discard':[],'color':[],'number':[]}
+    group={'play':[],'discard':[],'color':[],'number':[],'info':[]}
     for a in actions:
         group[a[0]].append(a)
+        if a=='color' or a=='number':
+            group['info']=[a]
     return group

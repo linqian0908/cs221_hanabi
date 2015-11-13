@@ -31,7 +31,21 @@ class AgentState:
         self.infer.append(None)
     
     # TODO: add function to update know. add aggregate function for knowledge
-    
+    def peek(self):
+        see=[]
+        for i in range(len(self.cards)):
+            if self.know[i][0]:
+                if self.know[i][1]:
+                    see.append(self.cards[i])
+                else:
+                    see.append((self.cards[i][0],-1))
+            else:
+                if self.know[i][1]:
+                    see.append((-1,self.cards[i][1]))
+                else:
+                    see.append((-1,-1))
+        return see
+        
     def copy(self):
         return AgentState(copy.deepcopy(self.cards),copy.deepcopy(self.know),copy.deepcopy(self.infer))
         
@@ -72,7 +86,6 @@ class Table:
     
     def add(self,card):
     # attemp to add card to table. return: True if success (legal move); False o.w.
- 
         color,number=card
         if self.state[color]==number-1:
             self.state[color]+=1
@@ -81,13 +94,17 @@ class Table:
     
     def playable(self,card):
         color,number=card
-        return self.state[color]==number-1
-        
+        if color>=0 and number>=0: # know both information
+            return self.state[color]==number-1
+        return False # know only color
+            
     def check(self,card):
     # check if a card is already played. return: True if is played
         color,number=card
-        return self.state[color]>=number
-    
+        if color>=0 and number>=0: # know both information
+            return self.state[color]>=number
+        return False
+        
     def getScore(self):
         return sum(self.state)+len(self.state)
     
@@ -110,7 +127,11 @@ class Trash:
     
     def check(self,card):
     # return number of a certain type of card is in trash
-        return self.state[card]
+        color,number=card
+        if color>=0 and number>=0:
+            return self.state[card]
+        return -1
+    
     
     def deepCopy(self):
         return Trash(copy.deepcopy(self.state))
@@ -156,14 +177,14 @@ class GameStateData:
          
 class Rule:
     def __init__(self,numColor,numNumber,numCard,numClue,numAgent):
-        self.numColor=numColor
-        self.numNumber=numNumber
-        self.numCard=numCard
-        self.numClue=numClue
-        self.numAgent=numAgent
+        self.numColor=numColor #total number of color
+        self.numNumber=numNumber #array of multiplicity of each number
+        self.numCard=numCard #number of cards on hand
+        self.numClue=numClue #number of clue
+        self.numAgent=numAgent #number of agent
                
 class Game:
-    def __init__(self,agents,numColor=4,numNumber=[3,2,2,2,1],numCard=4,numClue=7):
+    def __init__(self,agents,numColor=5,numNumber=[3,2,2,2,1],numCard=4,numClue=7):
         self.rule=Rule(numColor,numNumber,numCard,numClue,len(agents))
         self.gameOver=False
         initstate=GameStateData()
@@ -172,6 +193,7 @@ class Game:
         self.agentList=[]
         for i in range(len(agents)):
             self.agentList.append(agents[i])
+            agents[i].registerInitialState(self.state)
     
     def finish(self):
         if self.state.isWin():
@@ -179,6 +201,7 @@ class Game:
         else:
             print "Lose~"
         print "finish with score ",self.state.getScore()
+        return self.state.getScore()
         # TODO: print out table and trash
         
     def run(self, verbose=0):
@@ -206,13 +229,25 @@ class Game:
         #if "final" in dir(self.agent):
         #   agent.final(self.state)
             
-        self.finish()
+        return self.finish()
 
 
 
-agents=[]        
+agents=[]
+'''
 for i in range(2):
     agents.append(MaxMaxAgent(i))
     #agents.append(informationlessAgent(i))
 game=Game(agents, 1, [2,1],numCard=1,numClue=7)
-game.run(1)
+'''
+
+for i in range(3):
+    agents.append(stateAgent(i))
+    #agents.append(informationlessAgent(i))
+    #agents.append(randomAgent(i))
+result=[]
+NMC=20
+for i in range(NMC):
+    game=Game(agents)
+    result.append(game.run(1))
+print "result is: ", result

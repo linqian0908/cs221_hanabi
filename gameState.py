@@ -110,9 +110,62 @@ class GameState:
             print "Player ", i, " has cards: ", self.data.agentState[i].cards, self.data.agentState[i].know,self.data.agentState[i].infer
     
         
-### helper functions ###    
+### helper functions ###   
+    def isPlayable(self,card):
+        color,number=card
+        if color<0 and number<0: #know nothing
+            return False
+        if color>=0 and number>=0: # know both information
+            return self.data.table.playable(card)
+        if color<0: # know only number
+            for n in range(len(self.rule.numNumber)):
+                if n!=number-1:
+                    return False
+            return True
+        return False # know only color
+    
+    def isDiscardable(self,card):
+        color,number=card
+        if color<0 and number<0: # know nothing
+            return False
+        if color>=0 and number>=0:
+            return self.data.table.check(card)
+        if color<0:
+            for c in range(self.rule.numColor):
+                if self.data.table.state[c]<number:
+                    return False
+            return True
+        if number<0:
+            return self.data.table.state[color]==len(self.rule.numNumber)-1
+        return False
+          
     def isDangerous(self,card):
         if self.data.table.check(card):
             return False
         color,number=card
-        return self.data.trash.check(card)>=(self.rule.numNumber[number]-1)   
+        if color>=0 and number>=0:
+            return self.data.trash.check(card)==(self.rule.numNumber[number]-1)
+        if color>=0:
+            n=self.data.table.state[color]
+            for i in range(n+1,len(self.rule.numNumber)):
+                if self.data.trash.check((color,i))<(self.rule.numNumber[i]-1):
+                    return False
+            return True
+        if number>=0:
+            for i in range(self.rule.numColor):
+                if self.data.trash.check((i,number))==(self.rule.numNumber[number]-1):
+                    if self.data.table.state[i]<number:
+                        return True
+            return False
+        return False
+        
+    def getDangerousInColor(self,color):
+        base=self.data.table[color]
+        result=[]
+        for i in range(base+1,len(rule.numNumber)):
+            if self.data.trash.check([color,i])==(self.rule.numNumber[number]-1):
+                result.append(i)
+        return result
+    
+    def getDangerousInNumber(self,number):
+        return
