@@ -74,11 +74,11 @@ class GameState:
             if action[0]=='color':
                 knownCardsIndex=colors[action[2]]
                 for i in knownCardsIndex:
-                    AgentReceivInfo.know[i]=('True',AgentReceivInfo.know[i][1])
+                    AgentReceivInfo.know[i]=(True,AgentReceivInfo.know[i][1])
             if action[0]=='number':
                 knownCardsIndex=numbers[action[2]]
                 for i in knownCardsIndex:
-                    AgentReceivInfo.know[i]=(AgentReceivInfo.know[i][0],'True')
+                    AgentReceivInfo.know[i]=(AgentReceivInfo.know[i][0],True)
             if state.data.additionalTerms!=float('inf'):
                 state.data.additionalTerms-=1                
         return state
@@ -118,8 +118,8 @@ class GameState:
         if color>=0 and number>=0: # know both information
             return self.data.table.playable(card)
         if color<0: # know only number
-            for n in range(len(self.rule.numNumber)):
-                if n!=number-1:
+            for n in range(self.rule.numColor):
+                if self.data.table.state[n]!=number-1:
                     return False
             return True
         return False # know only color
@@ -155,10 +155,11 @@ class GameState:
             return True
         if number>=0:
             for i in range(self.rule.numColor):
-                if self.data.trash.check((i,number))==(self.rule.numNumber[number]-1):
-                    if self.data.table.state[i]<number:
-                        return True
-            return False
+                if self.data.table.state[i]>=number:
+                    return False
+                if self.data.trash.check((i,number))<(self.rule.numNumber[number]-1):
+                    return False
+            return True
         return False
         
     def getDangerousInColor(self,color):
