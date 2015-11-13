@@ -149,6 +149,56 @@ class stateAgent(Agent):
                 state.infer[i]='playable'
             elif gameState.isDiscardable(see[i]):
                 state.infer[i]='discardable'
+
+class recognitionAgent(Agent):
+    def getAction(self,gameState):
+        state=gameState.data.agentState[self.index]
+        # play/discard
+        for i in reversed(range(len(state.cards))):
+            if state.infer[i] is 'playable':
+                return ('play',i)
+        for i in range(len(state.cards)):
+            if state.infer[i] is 'discardable':
+                return ('discard',i)
+        
+        # tell next player
+        if gameState.data.clue>0:
+            nextIndex=(self.index+1)%gameState.rule.numAgent
+            nextState=gameState.data.agentState[nextIndex]
+            for i in reversed(range(len(nextState.cards))):
+                if gameState.isPlayable(nextState.cards[i]):
+                    if not nextState.know[i][1]:
+                        return ('number',nextIndex,nextState.cards[i][1])
+                    if not nextState.know[i][0]:
+                        return ('color',nextIndex,nextState.cards[i][0])
+            for i in range(len(nextState.cards)):
+                if gameState.isDangerous(nextState.cards[i]):
+                    if not nextState.know[i][1]:
+                        return ('number',nextIndex,nextState.cards[i][1])
+                    if not nextState.know[i][0]:
+                        return ('color',nextIndex,nextState.cards[i][0])
+        
+        # random discard
+        for i in range(len(state.cards)):
+            if not (state.know[i][0] or state.know[i][1]):
+                return ('discard',i)
+        for i in range(len(state.cards)):
+            if state.infer[i] is not 'dangerous':
+                return ('discard',i)
+        return ('discard',random.sample(range(len(state.cards)),1)[0])                
+    
+    def inference(self,gameState,agentIndex,action):
+        if not (agentIndex+1)%gameState.rule.numAgent == self.index:
+            return
+        state=gameState.data.agentState[self.index]
+        see=state.peek()
+        for i in range(len(state.cards)):
+            if state.infer[i] is None and gameState.isDangerous(see[i]):
+                state.infer[i]='dangerous'
+            if gameState.isPlayable(see[i]):
+                state.infer[i]='playable'
+            elif gameState.isDiscardable(see[i]):
+                state.infer[i]='discardable'
         if (action[0]=='color' or action[0]=='number') and action[1]==self.index:            
             colors, numbers=gameState.getCardStatistics(self.index)
             if action[0]=='number':
@@ -162,7 +212,7 @@ class stateAgent(Agent):
                     state.infer[first]='playable'
                 else:
                     state.infer[first]='dangerous' 
-
+                    
 class oracleAgent(Agent):
     def getAction(self,gameState):
         state=gameState.data.agentState[self.index]
