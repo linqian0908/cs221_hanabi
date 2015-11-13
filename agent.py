@@ -15,7 +15,7 @@ class Agent:
     # inspects the starting state
         return
         
-    def infer(self,gameState,agentIndex,action):
+    def inference(self,gameState,agentIndex,action):
     # infer other players' action. Not necessarily implimented in every subclass
         return
          
@@ -55,7 +55,7 @@ class informationlessAgent(Agent):
             return 3
         return 0
     
-    def infer(self,gameState,agentIndex,action):
+    def inference(self,gameState,agentIndex,action):
         if agentIndex!=self.index and action[0]=='discard':
             total=action[1]
             subtotal=0
@@ -73,6 +73,33 @@ class informationlessAgent(Agent):
                 gameState.data.agentState[self.index].infer[3]=True
         return
 
+class smartInformationlessAgent(informationlessAgent):
+    def getAction(self,gameState):
+        state=gameState.data.agentState[self.index]
+        for i in range(len(state.cards)):
+            if state.infer[i]:
+                return ('play',i)
+        index=range(self.index+1,gameState.rule.numAgent)+range(self.index)
+        n=[]
+        for i in index:
+            cks=self.checksum_and_card(gameState.data.table,gameState.data.agentState[i].cards)
+            n.append(cks[0])
+            if i==index[0]:
+                card=cks[1]
+            elif n[0]>0 and cks[0]>0 and cks[1]==card: # mutliple agent with the same playable 
+                n[0]=0  
+        return ('discard',min((sum(n)-1)%4,len(gameState.data.agentState[self.index].cards)))
+    
+    def checksum_and_card(self,table,cards):
+        lc=len(cards)
+        if lc>0 and table.playable(cards[0]):
+            return (1,cards[0])
+        if lc>1 and table.playable(cards[1]):
+            return (2,cards[1])
+        if lc>3 and table.playable(cards[3]):
+            return (3,cards[3])
+        return (0,None)
+        
 class stateAgent(Agent):
     def getAction(self,gameState):
         state=gameState.data.agentState[self.index]
@@ -110,7 +137,7 @@ class stateAgent(Agent):
                 return ('discard',i)
         return ('discard',random.sample(range(len(state.cards)),1)[0])                
     
-    def infer(self,gameState,agentIndex,action):
+    def inference(self,gameState,agentIndex,action):
         if not (agentIndex+1)%gameState.rule.numAgent == self.index:
             return
         state=gameState.data.agentState[self.index]
@@ -160,7 +187,7 @@ class oracleAgent(Agent):
         # random discard
         return ('discard',random.sample(range(len(state.cards)),1)[0])                
     
-    def infer(self,gameState,agentIndex,action):
+    def inference(self,gameState,agentIndex,action):
         if not (agentIndex+1)%gameState.rule.numAgent == self.index:
             return
         state=gameState.data.agentState[self.index]
@@ -207,9 +234,6 @@ class MaxMaxAgent(Agent):
             print optimalActions
         _=recComputeVopt(gameState, self.depth, self.index)
         return random.choice(optimalActions)
-
-    def infer(self,gameState,agentIndex,action):
-        return
 
 ### helper functions ###
 def groupActions(actions):

@@ -221,7 +221,7 @@ class Game:
             # Execute the action
             self.state=self.state.generateSuccessor(agentIndex,action)
             for a in self.agentList:
-                a.infer(self.state,agentIndex,action)
+                a.inference(self.state,agentIndex,action)
             self.gameOver=self.state.isEnd()
             agentIndex=( agentIndex+1 ) % self.rule.numAgent
         
