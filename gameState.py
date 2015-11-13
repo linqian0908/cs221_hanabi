@@ -140,10 +140,12 @@ class GameState:
         return False
           
     def isDangerous(self,card):
-        if self.data.table.check(card):
-            return False
         color,number=card
+        if color<0 and number<0:
+            return False
         if color>=0 and number>=0:
+            if self.data.table.check(card):
+                return False
             return self.data.trash.check(card)==(self.rule.numNumber[number]-1)
         if color>=0:
             n=self.data.table.state[color]
