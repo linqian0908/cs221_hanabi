@@ -22,3 +22,4 @@ for i in range(NMC):
     game=Game(agents)
     result.append(game.run(0))
 print ", ".join(map(str,result))
+print sum(result)*1.0/len(result)

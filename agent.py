@@ -143,13 +143,15 @@ class stateAgent(Agent):
         state=gameState.data.agentState[self.index]
         see=state.peek()
         for i in range(len(state.cards)):
-            if state.infer[i] is None and gameState.isDangerous(see[i]):
-                state.infer[i]='dangerous'
-            if gameState.isPlayable(see[i]):
-                state.infer[i]='playable'
-            elif gameState.isDiscardable(see[i]):
+            if state.infer[i] is 'playable':
+                state.infer[i]=None
+            if gameState.isDiscardable(see[i]):
                 state.infer[i]='discardable'
-
+            elif gameState.isPlayable(see[i]):
+                state.infer[i]='playable'   
+            elif gameState.isDangerous(see[i]):
+                state.infer[i]='dangerous'
+                             
 class stateGuessAgent(Agent):
     def getAction(self,gameState):
         state=gameState.data.agentState[self.index]
@@ -191,12 +193,15 @@ class stateGuessAgent(Agent):
         state=gameState.data.agentState[self.index]
         see=state.peek()
         for i in range(len(state.cards)):
-            if state.infer[i] is None and gameState.isDangerous(see[i]):
-                state.infer[i]='dangerous'
-            if gameState.isPlayable(see[i]):
-                state.infer[i]='playable'
-            elif gameState.isDiscardable(see[i]):
+            if state.infer[i] is 'playable':
+                state.infer[i]=None
+            if gameState.isDiscardable(see[i]):
                 state.infer[i]='discardable'
+            elif gameState.isPlayable(see[i]):
+                state.infer[i]='playable'   
+            elif gameState.isDangerous(see[i]):
+                state.infer[i]='dangerous'
+                
         if (action[0]=='color' or action[0]=='number') and action[1]==self.index:            
             colors, numbers=gameState.getCardStatistics(self.index)
             if action[0]=='number':
