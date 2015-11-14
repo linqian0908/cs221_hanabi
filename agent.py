@@ -107,9 +107,6 @@ class stateAgent(Agent):
         for i in reversed(range(len(state.cards))):
             if state.infer[i] is 'playable':
                 return ('play',i)
-        for i in range(len(state.cards)):
-            if state.infer[i] is 'discardable':
-                return ('discard',i)
         
         # tell next player
         if gameState.data.clue>0:
@@ -129,6 +126,9 @@ class stateAgent(Agent):
                         return ('color',nextIndex,nextState.cards[i][0])
         
         # random discard
+        for i in range(len(state.cards)):
+            if state.infer[i] is 'discardable':
+                return ('discard',i)
         for i in range(len(state.cards)):
             if not (state.know[i][0] or state.know[i][1]):
                 return ('discard',i)
@@ -150,16 +150,13 @@ class stateAgent(Agent):
             elif gameState.isDiscardable(see[i]):
                 state.infer[i]='discardable'
 
-class recognitionAgent(Agent):
+class stateGuessAgent(Agent):
     def getAction(self,gameState):
         state=gameState.data.agentState[self.index]
         # play/discard
         for i in reversed(range(len(state.cards))):
             if state.infer[i] is 'playable':
                 return ('play',i)
-        for i in range(len(state.cards)):
-            if state.infer[i] is 'discardable':
-                return ('discard',i)
         
         # tell next player
         if gameState.data.clue>0:
@@ -173,12 +170,13 @@ class recognitionAgent(Agent):
                         return ('color',nextIndex,nextState.cards[i][0])
             for i in range(len(nextState.cards)):
                 if gameState.isDangerous(nextState.cards[i]):
-                    if not nextState.know[i][1]:
-                        return ('number',nextIndex,nextState.cards[i][1])
                     if not nextState.know[i][0]:
-                        return ('color',nextIndex,nextState.cards[i][0])
+                        return ('color',nextIndex,nextState.cards[i][0])               
         
-        # random discard
+        # discard      
+        for i in range(len(state.cards)):
+            if state.infer[i] is 'discardable':
+                return ('discard',i)
         for i in range(len(state.cards)):
             if not (state.know[i][0] or state.know[i][1]):
                 return ('discard',i)
@@ -208,10 +206,16 @@ class recognitionAgent(Agent):
             first=min(knowCardIndex)
             last=max(knowCardIndex)
             if last==first:
-                if state.infer[first] is None:
+                if action[0]=='color' and not state.know[first][0]: # knows only color
+                    state.infer[first]='dangerous'
+                elif action[0]=='number':
                     state.infer[first]='playable'
-                else:
-                    state.infer[first]='dangerous' 
+            if action[0]=='number':
+                state.infer[last]='playable'
+            elif state.know[last][1]:
+                state.infer[last]='playable'
+            else:
+                state.infer[first]='dangerous'
                     
 class oracleAgent(Agent):
     def getAction(self,gameState):

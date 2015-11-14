@@ -13,11 +13,12 @@ for i in range(3):
     #agents.append(randomAgent(i))
     #agents.append(informationlessAgent(i))
     #agents.append(smartInformationlessAgent(i))
-    agents.append(stateAgent(i))
+    #agents.append(stateAgent(i))
+    agents.append(stateGuessAgent(i))
     
 result=[]
-NMC=1
+NMC=100
 for i in range(NMC):
     game=Game(agents)
-    result.append(game.run(1))
+    result.append(game.run(0))
 print ", ".join(map(str,result))
