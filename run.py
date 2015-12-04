@@ -14,7 +14,8 @@ for i in range(3):
     #agents.append(informationlessAgent(i))
     #agents.append(smartInformationlessAgent(i))
     #agents.append(stateAgent(i))
-    agents.append(informationAgent(i))
+    agents.append(informationAgent(i))    
+    #agents.append(MaxMaxAgent(i))
     #agents.append(stateGuessAgent(i))
     
 result=[]
@@ -23,4 +24,4 @@ for i in range(NMC):
     game=Game(agents)
     result.append(game.run(0))
 print ", ".join(map(str,result))
-#print sum(result)*1.0/len(result)
+print sum(result)*1.0/len(result)
