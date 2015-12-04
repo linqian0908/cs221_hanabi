@@ -131,7 +131,6 @@ class Trash:
             return self.state[card]
         return -1
     
-    
     def deepCopy(self):
         return Trash(copy.deepcopy(self.state))
         
@@ -230,3 +229,18 @@ class Game:
         #   agent.final(self.state)
             
         return self.finish(verbose)
+
+
+agents=[]
+for i in range(3):
+    agents.append(MaxMaxAgent(i))
+    #agents.append(stateAgent(i))
+    #agents.append(informationlessAgent(i))
+    #agents.append(randomAgent(i))
+result=[]
+NMC=20
+for i in range(NMC):
+    print i
+    game=Game(agents)
+    result.append(game.run(0))
+print "result is: ", result

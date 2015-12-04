@@ -321,19 +321,22 @@ class MaxMaxAgent(Agent):
     #similar to minimax, but here is a collaboration game:
     def __init__(self,index):
         self.index=index
-        self.depth=1
+        self.depth=2
     
     def evaluationFunction(self, gameState):
-        return gameState.getScore()
+        utility=gameState.getScore()
+        myTrash=gameState.data.trash.state
+        for card in myTrash:
+            color,number=card
+            if myTrash[card]==gameState.rule.numNumber[number]:
+                utility-=100
+        utility+=gameState.data.clue
+        return utility
 
     def getAction(self, gameState):
         optimalActions=[]
         def recComputeVopt(gameState, depth, agentIndex):
             Actions=gameState.getLegalActions(agentIndex)
-            #print '\n'
-            #print "active agent is ", agentIndex, " with depth ", depth
-            #print "allowed action is ", Actions
-            #gameState.printData()
             if gameState.isEnd() or (not Actions):
                 return gameState.getScore()
             if depth==0:
@@ -347,7 +350,6 @@ class MaxMaxAgent(Agent):
                 for i, v in enumerate(values):
                     if v==optimalValue:
                         optimalActions.append(Actions[i])
-            print optimalActions
         _=recComputeVopt(gameState, self.depth, self.index)
         return random.choice(optimalActions)
 
