@@ -38,7 +38,7 @@ class GameState:
             
     def generateSuccessor(self,agentIndex, action):
         if self.isEnd(): raise Exception('Can\'t generate a successor of a terminal state.')
-        state = GameState(self.rule, self.data)
+        state = self.deepCopy()
         if action[0]=='play':
             card=state.data.agentState[agentIndex].pop(action[1])
             isValid=state.data.table.add(card)
