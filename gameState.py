@@ -88,8 +88,8 @@ class GameState:
 
     def getScore(self):
         finalScore=self.data.table.getScore()
-        if self.isWin():
-            finalScore+=10000
+        #if self.isWin():
+        #    finalScore+=10000
         return finalScore
 
     def isEnd(self):

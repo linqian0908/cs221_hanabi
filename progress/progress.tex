@@ -133,8 +133,8 @@ This scores on average 16 out of a 25/50 card stack.
 This is a naive heuristic-based agent. The agent play by the following set of rules at its term:
 \begin{itemize}
  \item play the newest card inferred to be playable
- \item if information token is available, and next player has playable cards, inform next playable about the oldest playable card with incomplete information (number first, then color)
- \item if information token is available, and next player has dangerous cards inform next playable about the oldest dangerous card with incomplete information (number first, then color)
+ \item if information token is available, and next player has playable cards, inform next playable about the newest playable card with incomplete information (number first, then color)
+ \item if information token is available, and next player has dangerous cards inform next playable about the color of the oldest dangerous card whose color has not been informed
  \item discard the oldest card inferred to be discardable
  \item discard oldest card with no information
  \item discard oldest card not inferred to be dangerous

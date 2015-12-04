@@ -45,7 +45,6 @@ class informationlessAgent(Agent):
         return ('discard',min((total-1)%4,len(gameState.data.agentState[self.index].cards)))
     
     def checksum(self,table,cards):
-        total=0
         lc=len(cards)
         if lc>0 and table.playable(cards[0]):
             return 1
@@ -99,7 +98,65 @@ class smartInformationlessAgent(informationlessAgent):
         if lc>3 and table.playable(cards[3]):
             return (3,cards[3])
         return (0,None)
-        
+
+## only works with two players
+class informationAgent(smartInformationlessAgent):
+    def getAction(self,gameState):
+        state=gameState.data.agentState[self.index]
+        for i in range(len(state.cards)):
+            if state.infer[i]:
+                return ('play',i)
+        index=range(self.index+1,gameState.rule.numAgent)+range(self.index)
+        n=[]
+        for i in index:
+            cks=self.checksum_and_card(gameState.data.table,gameState.data.agentState[i].cards)
+            n.append(cks[0])
+            if i==index[0]:
+                card=cks[1]
+            elif n[0]>0 and cks[0]>0 and cks[1]==card: # mutliple agent with the same playable 
+                n[0]=0
+        if gameState.data.clue>0:
+            return self.scoreToAction(gameState,self.index,(sum(n)-1)%4)
+        else:
+            return ('discard',min((sum(n)-1)%4,len(gameState.data.agentState[self.index].cards)))
+    
+    def scoreToAction(self,gameState,agentIndex,score):
+        nextIndex=(agentIndex+score%2+1)%gameState.rule.numAgent        
+        if score<2:
+            return ('number',nextIndex,gameState.data.agentState[nextIndex].cards[0][1])
+        else:
+            return ('color',nextIndex,gameState.data.agentState[nextIndex].cards[0][0])
+    
+    def actionToScore(self,gameState,agentIndex,action):
+        score=(action[1]-1-agentIndex)%gameState.rule.numAgent
+        if action[0]=='color':
+            score += 2
+        return score
+    
+    def inference(self,gameState,agentIndex,action):
+        if agentIndex!=self.index:
+            if action[0]=='play':
+                return
+            else:
+                if action[0]=='discard':
+                    total=action[1]
+                else:
+                    total=self.actionToScore(gameState,agentIndex,action)
+                subtotal=0
+                for i in range(gameState.rule.numAgent):
+                    if i==self.index or i==agentIndex:
+                        continue
+                    subtotal+=self.checksum(gameState.data.table,gameState.data.agentState[i].cards)
+                diff=(total-(subtotal-1))%4
+                lc=len(gameState.data.agentState[self.index].cards)
+                if lc>0 and diff==1:
+                    gameState.data.agentState[self.index].infer[0]=True
+                if lc>1 and diff==2:
+                    gameState.data.agentState[self.index].infer[1]=True
+                if lc>3 and diff==3:
+                    gameState.data.agentState[self.index].infer[3]=True
+            return
+                
 class stateAgent(Agent):
     def getAction(self,gameState):
         state=gameState.data.agentState[self.index]

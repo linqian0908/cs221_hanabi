@@ -13,7 +13,8 @@ for i in range(3):
     #agents.append(randomAgent(i))
     #agents.append(informationlessAgent(i))
     #agents.append(smartInformationlessAgent(i))
-    agents.append(stateAgent(i))
+    #agents.append(stateAgent(i))
+    agents.append(informationAgent(i))
     #agents.append(stateGuessAgent(i))
     
 result=[]

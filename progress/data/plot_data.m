@@ -1,4 +1,4 @@
-names={'oracle','random','sIL','state','guess'};
+names={'oracle','random','sIL','sI','state','guess'};
 N=length(names);
 data=cell(N,1);
 for j=1:N
